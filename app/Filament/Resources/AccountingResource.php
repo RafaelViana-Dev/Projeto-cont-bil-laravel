@@ -36,7 +36,9 @@ class AccountingResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('description')
+                    ->label(__('Descrição'))
+                    ->required(),
             ]);
     }
 

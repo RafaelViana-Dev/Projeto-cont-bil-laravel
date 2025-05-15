@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('accountings', function (Blueprint $table) {
             $table->id();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
