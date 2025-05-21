@@ -48,15 +48,21 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
-                    ->unique(ignoreRecord: true)
-                    ->label(__('E-mail')),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->maxLength(255)
+                    ->required()
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrateStateUsing(fn (string $state): string => Hash::make($state)) // Usar Hash::make para senhas
+                    ->dehydrated(fn (string $state): bool => filled($state)),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
-                    ->required()
-                    ->label(__('Confirmar Senha')),
+                    ->label("Confirmação de Senha") // Rótulo específico
+                    ->maxLength(255)
+                    ->requiredWith('password')
+                    ->dehydrated(false), // Não persistir no banco de dados
             ]);
     }
 
@@ -65,17 +71,21 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Criado em'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Atualizado em'),
             ])
             ->filters([
                 //
@@ -96,7 +106,6 @@ class UserResource extends Resource
             //
         ];
     }
-
     public static function getPages(): array
     {
         return [
